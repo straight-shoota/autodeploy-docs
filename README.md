@@ -22,9 +22,25 @@ curl https://raw.githubusercontent.com/straight-shoota/autodeploy-docs/master/au
 
 ## Usage
 
+local manual run:
 ```bash
-create_documentation && ./autodeploy-docs.sh
+create_documentation && autodeploy-docs
 ```
+
+On travis-CI ([real-world example](https://github.com/straight-shoota/crinja/blob/fcf4e65f9db86fe853176a6b9ce843d4bf17d6e2/.travis.yml))
+```yaml
+after_success:
+- generate_documentation
+- https://github.com/straight-shoota/crinja/blob/fcf4e65f9db86fe853176a6b9ce843d4bf17d6e2/.travis.yml
+
+env:
+  global:
+    GIT_COMMITTER_NAME: travis-ci
+    GIT_COMMITTER_EMAIL: travis@travis-ci.org
+```
+You need to install an ssh key on travis or define a secret environment variable `GH_TOKEN` with a token to push to Github API.
+
+
 
 # Configuration
 
@@ -35,6 +51,7 @@ create_documentation && ./autodeploy-docs.sh
 * **`WORKDIR`:** `${HOME}/${REPO}-docs-${TAG}`
 * **`DOCS_REPO`:** `https://${GH_TOKEN}@github.com/${REPO}` or `git@github.com:${REPO}`
 * **`DOCS_BRANCH`:** `gh-pages`
+* **`GH_TOKEN`:** (needs to be set if no ssh key is available)
 * **`TARGET_PATH`:** `api/${TAG}`
 
 ## Contributing
