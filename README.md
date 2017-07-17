@@ -14,7 +14,10 @@ a repository at Github. They can also be customized trough environment variables
 # Installation
 
 ```
-wget https://raw.githubusercontent.com/straight-shoota/autodeploy-docs/master/autodeploy-docs.sh
+# run once (for example in CI):
+curl https://raw.githubusercontent.com/straight-shoota/autodeploy-docs/master/autodeploy-docs.sh | bash
+# install locally
+curl https://raw.githubusercontent.com/straight-shoota/autodeploy-docs/master/autodeploy-docs.sh > /usr/local/bin/autodeploy-docs
 ```
 
 ## Usage

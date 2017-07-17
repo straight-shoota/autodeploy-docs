@@ -1,6 +1,13 @@
 #! /usr/bin/env bash
 #
+# AUTODEPLOY-DOCS:
+# Automatically deploy documentation for your code repositories.
 #
+# Source code and usage instructions can be found at:
+#
+#      https://github.com/straight-shoota/autodeploy-docs
+#
+# DESCRIPTION:
 # This script performs the following steps:
 # * clone the docs repository (`DOCS_REPO`, `DOCS_BRANCH`) into a working dir (`WORKDIR`)
 # * collect documentation from a source directory (`GENERATE_DOCS_DIR) into a target path in the repository (`TARGET_PATH`)
@@ -10,6 +17,38 @@
 # It can be invoked as an after_success hook on a CI setup or run manually.
 # Most configuration values will work with their default values on Travis-CI or when run from a local copy of
 # a repository at Github. They can also be customized trough environment variables.
+#
+# CONFIGURATION:
+# Environment variables and their default values:
+# * GENERATED_DOCS_DIR: $(pwd)/doc
+# * BRANCH:             $TRAVIS_BRANCH
+#                       $(git rev-parse --abbrev-ref HEAD)
+# * TAG:                $TRAVIS_TAG
+#                       $(git name-rev --tags --name-only "${BRANCH}")
+#                       latest
+# * REPO:               $TRAVIS_REPO_SLUG
+#                       $(git ls-remote --get-url origin)
+# * WORKDIR:            ${HOME}/${REPO}-docs-${TAG}
+# * DOCS_REPO:          https://${GH_TOKEN}@github.com/${REPO}
+#                       git@github.com:${REPO}
+# * DOCS_BRANCH:        gh-pages
+# * TARGET_PATH:        api/${TAG}
+#
+#
+#
+# Copyright 2017 Johannes Müller <straightshoota@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 set -o errexit
 
