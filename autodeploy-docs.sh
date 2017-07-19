@@ -32,6 +32,7 @@
 # * DOCS_REPO:          https://${GH_TOKEN}@github.com/${REPO}
 #                       git@github.com:${REPO}
 # * DOCS_BRANCH:        gh-pages
+# * GH_TOKEN:           -
 # * TARGET_PATH:        api/${TAG}
 #
 #
@@ -91,9 +92,13 @@ WORKDIR="${WORKDIR:-"$HOME/${REPO}-docs-${TAG}"}"
 if [ "$DOCS_REPO" == "" ]; then
   if [ "$GH_TOKEN" = "" ]; then
     DOCS_REPO="git@github.com:${REPO}"
+    DOCS_REPO_SAFE="$DOCS_REPO"
   else
     DOCS_REPO="https://${GH_TOKEN}@github.com/${REPO}"
+    DOCS_REPO_SAFE="https://[secret]@github.com/${REPO}"
   fi
+else
+  DOCS_REPO_SAFE="$DOCS_REPO"
 fi
 DOCS_BRANCH="${DOCS_BRANCH:-gh-pages}"
 TARGET_PATH="${TARGET_PATH:-"api/${TAG}"}"
@@ -105,15 +110,21 @@ function run_subcommand() {
   echo -e ""
 }
 
+function failed_git_clone() {
+  echo -e "\033[31mError: \033[0;1mCould not clone ${DOCS_REPO}"
+  echo -e "Please make sure that you can successfully connect to the git repository by either setting up a SSH key (preferred) or assigning a Github API token."
+  exit 1
+}
+
 echo -e "Autodeploying documentation for branch ${BRANCH} ($TAG) from ${GENERATED_DOCS_DIR}"
 
 ### Clone docs repository
-echo -e "Checking out docs repository ${DOCS_REPO} ${DOCS_BRANCH} into ${WORKDIR}"
+echo -e "Checking out docs repository ${DOCS_REPO_SAFE} ${DOCS_BRANCH} into ${WORKDIR}"
 echo -e ""
 
 rm -rf "${WORKDIR}"
 if [ "$CI" = true ]; then
-  git clone --quiet --branch="${DOCS_BRANCH}" "${DOCS_REPO}" "${WORKDIR}" > /dev/null 2>/dev/null
+  git clone --quiet --branch="${DOCS_BRANCH}" "${DOCS_REPO}" "${WORKDIR}" > /dev/null 2>/dev/null || failed_git_clone
 else
   run_subcommand git clone --branch="${DOCS_BRANCH}" "${DOCS_REPO}" "${WORKDIR}"
 fi
@@ -157,4 +168,4 @@ else
   run_subcommand git push -f origin "${DOCS_BRANCH}"
 fi
 
-echo -e "Deployed generated docs to ${DOCS_REPO} ${DOCS_BRANCH}."
+echo -e "Deployed generated docs to ${DOCS_REPO_SAFE} ${DOCS_BRANCH}."
