@@ -31,7 +31,7 @@ On travis-CI ([real-world example](https://github.com/straight-shoota/crinja/blo
 ```yaml
 after_success:
 - generate_documentation
-- https://github.com/straight-shoota/crinja/blob/fcf4e65f9db86fe853176a6b9ce843d4bf17d6e2/.travis.yml
+- curl https://raw.githubusercontent.com/straight-shoota/autodeploy-docs/master/autodeploy-docs.sh | bash
 
 env:
   global:
