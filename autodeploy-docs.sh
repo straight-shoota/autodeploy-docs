@@ -20,7 +20,7 @@
 #
 # CONFIGURATION:
 # Environment variables and their default values:
-# * GENERATED_DOCS_DIR: $(pwd)/doc
+# * GENERATED_DOCS_DIR: $(pwd)/docs
 # * BRANCH:             $TRAVIS_BRANCH
 #                       $(git rev-parse --abbrev-ref HEAD)
 # * TAG:                $TRAVIS_TAG
@@ -53,14 +53,14 @@
 
 set -o errexit
 
-if [ "$CI" = true ] && ([ "$TRAVIS_BRANCH" != "master" ] || [ "$TRAVIS_PULL_REQUEST" = "true" ]); then
+if [ "$CI" = true ] && ([ "${TRAVIS_BRANCH}" != "master" ] || [ "{$TRAVIS_PULL_REQUEST}" = "true" ]); then
   echo -e "Aborting docs generation, we're on CI and this is not a push to master"
-  echo -e "TRAVIS_TAG=$TRAVIS_TAG"
-  echo -e "TRAVIS_BRANCH=$TRAVIS_BRANCH"
+  echo -e "TRAVIS_TAG=${TRAVIS_TAG}"
+  echo -e "TRAVIS_BRANCH=${TRAVIS_BRANCH}"
   exit 0
 fi
 
-GENERATED_DOCS_DIR="${GENERATED_DOCS_DIR:-"$(pwd)/doc"}"
+GENERATED_DOCS_DIR="${GENERATED_DOCS_DIR:-"$(pwd)/docs"}"
 if [ ! -d "$GENERATED_DOCS_DIR" ]; then
   echo -e "Source directory \`$GENERATED_DOCS_DIR\` does not exist."
   echo -e "Please create the documentation at this path or change it by assigning a different path to \$GENERATER_DOCS_DIR"
