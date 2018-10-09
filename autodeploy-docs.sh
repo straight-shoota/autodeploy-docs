@@ -22,11 +22,14 @@
 # Environment variables and their default values:
 # * GENERATED_DOCS_DIR: $(pwd)/docs
 # * BRANCH:             $TRAVIS_BRANCH
+#                       $CIRCLE_BRANCH
 #                       $(git rev-parse --abbrev-ref HEAD)
 # * TAG:                $TRAVIS_TAG
+#                       $CIRCLE_TAG
 #                       $(git name-rev --tags --name-only "${BRANCH}")
 #                       latest
 # * REPO:               $TRAVIS_REPO_SLUG
+#                       $CIRCLE_PROJECT_REPONAME
 #                       $(git ls-remote --get-url origin)
 # * WORKDIR:            ${HOME}/${REPO}-docs-${TAG}
 # * DOCS_REPO:          https://${GH_TOKEN}@github.com/${REPO}
@@ -53,10 +56,11 @@
 
 set -o errexit
 
-if [ "$CI" = true ] && ([ "${TRAVIS_BRANCH}" != "master" ] || [ "{$TRAVIS_PULL_REQUEST}" = "true" ]); then
+if [ "$CI" = true ] && ([ "${BRANCH}" != "master" ] || [ "${
+_PULL_REQUEST}" = "true" ]); then
   echo -e "Aborting docs generation, we're on CI and this is not a push to master"
-  echo -e "TRAVIS_TAG=${TRAVIS_TAG}"
-  echo -e "TRAVIS_BRANCH=${TRAVIS_BRANCH}"
+  echo -e "TAG=${TAG}"
+  echo -e "BRANCH=${BRANCH}"
   exit 0
 fi
 
@@ -67,9 +71,9 @@ if [ ! -d "$GENERATED_DOCS_DIR" ]; then
   exit 1
 fi
 
-BRANCH="${BRANCH:-$TRAVIS_BRANCH}"
-TAG="${TAG:-$TRAVIS_TAG}"
-REPO="${REPO:-$TRAVIS_REPO_SLUG}"
+BRANCH="${BRANCH:-${TRAVIS_BRANCH:-${CIRCLE_BRANCH}}}"
+TAG="${TAG:-${TRAVIS_TAG:-${CIRCLE_TAG}}}"
+REPO="${REPO:-${TRAVIS_REPO_SLUG:-${CIRCLE_PROJECT_REPONAME}}}"
 
 if [ "$BRANCH" = "" ]; then
   BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -145,7 +149,7 @@ fi
 git -c core.fileMode=false add -f .
 
 if [ "$CI" = true ]; then
-  BUILD_NOTICE_TRAVIS=" on successful travis build $TRAVIS_BUILD_NUMBER"
+  BUILD_NOTICE_CI=" on successful travis build ${TRAVIS_BUILD_NUMBER:-${CIRCLE_BUILD_NUM}}"
 else
   run_subcommand git -c core.fileMode=false status
 fi
@@ -156,7 +160,7 @@ if [ "$GIT_COMMITTER_NAME" != "" ]; then
 fi
 
 if [ "$GIT_COMMIT_MESSAGE" = "" ]; then
-  GIT_COMMIT_MESSAGE="Docs generated${BUILD_NOTICE_TRAVIS} for ${BRANCH} ($TAG)"
+  GIT_COMMIT_MESSAGE="Docs generated${BUILD_NOTICE_CI} for ${BRANCH} ($TAG)"
 fi
 # TOOO: pipe git commit through `head -n 3` to show only the status information
 run_subcommand git "${LOCAL_GIT_CONF[@]}" commit -m "$GIT_COMMIT_MESSAGE"
