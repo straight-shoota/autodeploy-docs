@@ -29,7 +29,7 @@
 #                       $(git name-rev --tags --name-only "${BRANCH}")
 #                       latest
 # * REPO:               $TRAVIS_REPO_SLUG
-#                       $CIRCLE_PROJECT_REPONAME
+#                       $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
 #                       $(git ls-remote --get-url origin)
 # * WORKDIR:            ${HOME}/${REPO}-docs-${TAG}
 # * DOCS_REPO:          https://${GH_TOKEN}@github.com/${REPO}
@@ -56,8 +56,11 @@
 
 set -o errexit
 
-if [ "$CI" = true ] && ([ "${BRANCH}" != "master" ] || [ "${
-_PULL_REQUEST}" = "true" ]); then
+BRANCH="${BRANCH:-${TRAVIS_BRANCH:-${CIRCLE_BRANCH}}}"
+TAG="${TAG:-${TRAVIS_TAG:-${CIRCLE_TAG}}}"
+REPO="${REPO:-${TRAVIS_REPO_SLUG:-"${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"}}"
+
+if [ "$CI" = true ] && ([ "${BRANCH}" != "master" ] || [ "${PULL_REQUEST}" = "true" ]); then
   echo -e "Aborting docs generation, we're on CI and this is not a push to master"
   echo -e "TAG=${TAG}"
   echo -e "BRANCH=${BRANCH}"
@@ -70,10 +73,6 @@ if [ ! -d "$GENERATED_DOCS_DIR" ]; then
   echo -e "Please create the documentation at this path or change it by assigning a different path to \$GENERATER_DOCS_DIR"
   exit 1
 fi
-
-BRANCH="${BRANCH:-${TRAVIS_BRANCH:-${CIRCLE_BRANCH}}}"
-TAG="${TAG:-${TRAVIS_TAG:-${CIRCLE_TAG}}}"
-REPO="${REPO:-${TRAVIS_REPO_SLUG:-${CIRCLE_PROJECT_REPONAME}}}"
 
 if [ "$BRANCH" = "" ]; then
   BRANCH=$(git rev-parse --abbrev-ref HEAD)
